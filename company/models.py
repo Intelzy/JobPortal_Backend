@@ -20,6 +20,13 @@ class JobStatus(models.TextChoices):
     REJECTED = "rejected", "Rejected"
 
 
+class Skill(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
 # Create your models here.
 class JobModel(models.Model):
 
@@ -28,6 +35,8 @@ class JobModel(models.Model):
     role = models.CharField(max_length=100)
     salary = models.IntegerField(blank=True, null=True)
     location = models.CharField(max_length=200)
+    skill = models.ManyToManyField(Skill, blank=True, null=True)
+    # skill =
     description = models.CharField(max_length=1000, blank=True, null=True)
     time = models.CharField(
         max_length=20, choices=JobTime.choices, default=JobTime.PHYSICAL
@@ -38,12 +47,16 @@ class JobModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.title
+
 
 class ApplicantModel(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     job = models.ForeignKey(JobModel, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     email = models.CharField(max_length=100)
+    address = models.CharField(max_length=200, blank=True, null=True)
     role = models.CharField(max_length=100)
     experience = models.IntegerField()
     status = models.CharField(
@@ -51,3 +64,6 @@ class ApplicantModel(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name

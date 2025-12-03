@@ -6,15 +6,19 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import AllowAny
+from drf_spectacular.utils import extend_schema
+from drf_yasg.utils import swagger_auto_schema
 
 from accounts.models import CustomUser
 from accounts.serializers import UserSerializer, LoginSerializer
 
 
+# @extend_schema(tags=["Users"])
 class UserView(APIView):
 
     permission_classes = [AllowAny]
 
+    @extend_schema(tags=["Users"])
     def get(self, request, *args, **kwargs):
 
         if kwargs.get("id"):
@@ -25,6 +29,7 @@ class UserView(APIView):
             serializer = UserSerializer(user, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(tags=["Auth"])
     def post(self, request, *args, **kwargs):
         data = request.data.copy()
         if data.get("role") == "job_seeker":
@@ -48,6 +53,7 @@ class UserView(APIView):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+    @extend_schema(tags=["Users"])
     def delete(self, request, *args, **kwargs):
         user = get_object_or_404(CustomUser, id=id)
         serializer = UserSerializer(user)
@@ -57,6 +63,7 @@ class UserView(APIView):
             status=status.HTTP_200_OK,
         )
 
+    @extend_schema(tags=["Users"])
     def put(self, request, *args, **kwargs):
         user_id = kwargs.get("id")
         if not user_id:
@@ -77,6 +84,7 @@ class UserView(APIView):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+    @extend_schema(tags=["Users"])
     def patch(self, request, *args, **kwargs):
         user_id = kwargs.get("id")
         if not user_id:
@@ -98,6 +106,7 @@ class UserView(APIView):
         )
 
 
+@extend_schema(tags=["Auth"])
 class LoginView(APIView):
     permission_classes = [AllowAny]
 

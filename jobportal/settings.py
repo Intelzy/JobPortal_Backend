@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-zc#)1u191az-l%zi@giq(21(x6q7b)ey9$38m2nlieyu5-+8p3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
+    "drf_spectacular",
     "accounts",
     "company",
 ]
@@ -132,5 +133,15 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
-    ]
+    ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.URLPathVersioning",
+    "DEFAULT_VERSION": "v1",
+    "ALLOWED_VERSIONS": ["v1", "v2"],
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "JobPortal API",
+    "DESCRIPTION": "API documentation for JobPortal project",
+    "VERSION": "1.0.0",
 }

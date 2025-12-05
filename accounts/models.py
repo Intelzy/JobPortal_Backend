@@ -35,10 +35,10 @@ class CustomManager(BaseUserManager):
 class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     class Roles(models.TextChoices):
-        JOBSEEKER = "job_seeker", "Job Seeker"
+        JOBSEEKER = "jobseeker", "Job Seeker"
         COMPANY = "company", "Company"
 
-    full_name = models.CharField(max_length=100)
+    full_name = models.CharField(max_length=100, blank=True, null=True)
     company_name = models.CharField(max_length=100, blank=True, null=True)
 
     email = models.EmailField(max_length=100, unique=True)

@@ -7,32 +7,42 @@ from company.models import JobModel, ApplicantModel, Skill
 class JobAdmin(admin.ModelAdmin):
     list_display = [
         "id",
-        "user",
+        "company",
         "title",
-        "role",
-        "salary",
         "location",
-        "description",
-        "time",
+        "salary",
         "type",
+        "description",
         "created_at",
         "updated_at",
     ]
+
+    list_filter = ["company"]
 
 
 class ApplicantAdmin(admin.ModelAdmin):
     list_display = [
         "id",
-        "user",
+        "company",
         "job",
-        "name",
+        "full_name",
         "email",
-        "role",
+        "contact",
         "experience",
         "status",
+        "portfolio_url",
+        "linkedin_url",
+        "cv",
+        "cover_letter",
+        "created_at",
+        "updated_at",
     ]
+
+
+class SkillAdmin(admin.ModelAdmin):
+    list_display = ["id", "name"]
 
 
 admin.site.register(JobModel, JobAdmin)
 admin.site.register(ApplicantModel, ApplicantAdmin)
-admin.site.register(Skill)
+admin.site.register(Skill, SkillAdmin)

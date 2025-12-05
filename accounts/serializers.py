@@ -1,11 +1,14 @@
 from rest_framework import serializers
 from accounts.models import CustomUser
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login
 
 
 class UserSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(write_only=True, required=True)
     password2 = serializers.CharField(write_only=True, required=True)
+
+    created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
+    updated_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
 
     class Meta:
         model = CustomUser
@@ -17,6 +20,8 @@ class UserSerializer(serializers.ModelSerializer):
             "company_name",
             "password1",
             "password2",
+            "created_at",
+            "updated_at",
         ]
 
     def validate(self, attrs):
@@ -41,14 +46,6 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
-    def validate(self, attrs):
-        email = attrs.get("email")
-        password = attrs.get("password")
-
-        user = authenticate(email=email, password=password)
-
-        if not user:
-            raise serializers.ValidationError("User not available")
-
-        attrs["user"] = user
-        return attrs
+    class Meta:
+        model = UserSerializer
+        fields = ["email", "password"]

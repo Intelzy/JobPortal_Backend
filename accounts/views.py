@@ -1,24 +1,24 @@
 # https://job-portal-pi-brown.vercel.app/
 
 from django.shortcuts import get_object_or_404
+from django.contrib.auth import login, logout, authenticate
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from drf_spectacular.utils import extend_schema
-from drf_yasg.utils import swagger_auto_schema
+
 
 from accounts.models import CustomUser
 from accounts.serializers import UserSerializer, LoginSerializer
 
 
-# @extend_schema(tags=["Users"])
+@extend_schema(tags=["Users"], request=UserSerializer, responses={200: UserSerializer})
 class UserView(APIView):
 
     permission_classes = [AllowAny]
 
-    @extend_schema(tags=["Users"])
     def get(self, request, *args, **kwargs):
 
         if kwargs.get("id"):
@@ -32,8 +32,9 @@ class UserView(APIView):
     @extend_schema(tags=["Auth"])
     def post(self, request, *args, **kwargs):
         data = request.data.copy()
-        if data.get("role") == "job_seeker":
-            data["role"] = "job_seeker"
+
+        if data.get("role") == "jobseeker":
+            data["role"] = "jobseeker"
         elif data.get("role") == "company":
             data["role"] = "company"
         else:
@@ -48,6 +49,7 @@ class UserView(APIView):
                 {"message": "user created", "payload": serializer.data},
                 status=status.HTTP_201_CREATED,
             )
+        print(serializer.errors)
         return Response(
             {**serializer.errors, "blabla": "blabla"},
             status=status.HTTP_400_BAD_REQUEST,
@@ -97,23 +99,39 @@ class UserView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(
-                {"message": "data update successfully", "payload": serializer.data},
+                {"message": "data updated successfully", "result": serializer.data},
                 status=status.HTTP_200_OK,
             )
+        print(serializer.errors)
         return Response(
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST,
         )
 
 
-@extend_schema(tags=["Auth"])
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        tags=["Auth"], request=LoginSerializer, responses={200: LoginSerializer}
+    )
     def post(self, request, *args, **kwargs):
-        serializer = LoginSerializer(data=request.data)
 
-        if serializer.is_valid():
-            user = UserSerializer(serializer.validated_data["user"])
-            return Response(user.data, status=status.HTTP_403_FORBIDDEN)
-        return Response(serializer.errors, status=status.HTTP_403_FORBIDDEN)
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
+        password = serializer.validated_data["password"]
+
+        user = authenticate(request=request, email=email, password=password)
+
+        if user is None:
+            return Response(
+                {"message": "User not found"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return Response(
+            {"message": "Login success", "result": UserSerializer(user).data},
+            status=status.HTTP_200_OK,
+        )

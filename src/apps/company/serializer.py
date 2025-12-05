@@ -8,6 +8,9 @@ from src.apps.accounts.models import CustomUser
 
 
 class ApplicantMiniSerlaizer(serializers.ModelSerializer):
+    created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
+    updated_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
+
     class Meta:
         model = ApplicantModel
         fields = [
@@ -19,23 +22,29 @@ class ApplicantMiniSerlaizer(serializers.ModelSerializer):
             "status",
             "portfolio_url",
             "linkedin_url",
+            "created_at",
+            "updated_at",
         ]
 
 
 class JobMiniSerializer(serializers.ModelSerializer):
-    model = JobModel
-    fields = [
-        "id",
-        "company",
-        "title",
-        "location",
-        "salary",
-        "requirements",
-        "type",
-        "description",
-        "created_at",
-        "updated_at",
-    ]
+    created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
+    updated_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
+
+    class Meta:
+        model = JobModel
+        fields = [
+            "id",
+            "company",
+            "title",
+            "location",
+            "salary",
+            "requirements",
+            "type",
+            "description",
+            "created_at",
+            "updated_at",
+        ]
 
 
 class JobSerializer(serializers.ModelSerializer):

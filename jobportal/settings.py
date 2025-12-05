@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "drf_spectacular",
-    "accounts",
-    "company",
+    "src.apps.accounts",
+    "src.apps.company",
 ]
 
 MIDDLEWARE = [

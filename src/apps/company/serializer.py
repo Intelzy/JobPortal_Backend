@@ -2,12 +2,46 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import serializers
 
-from accounts.serializers import UserSerializer
-from company.models import JobModel, ApplicantModel, Skill, JobRequirement
-from accounts.models import CustomUser
+from src.apps.accounts.serializers import UserSerializer
+from .models import JobModel, ApplicantModel, JobRequirement
+from src.apps.accounts.models import CustomUser
+
+
+class ApplicantMiniSerlaizer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicantModel
+        fields = [
+            "id",
+            "full_name",
+            "email",
+            "contact",
+            "experience",
+            "status",
+            "portfolio_url",
+            "linkedin_url",
+        ]
+
+
+class JobMiniSerializer(serializers.ModelSerializer):
+    model = JobModel
+    fields = [
+        "id",
+        "company",
+        "title",
+        "location",
+        "salary",
+        "requirements",
+        "type",
+        "description",
+        "created_at",
+        "updated_at",
+    ]
 
 
 class JobSerializer(serializers.ModelSerializer):
+
+    applicants = serializers.SerializerMethodField(read_only=True)
+
     company_id = serializers.IntegerField(required=True)
     company = UserSerializer(read_only=True)
 
@@ -34,7 +68,15 @@ class JobSerializer(serializers.ModelSerializer):
             "description",
             "created_at",
             "updated_at",
+            "applicants",
         ]
+
+    def get_applicants(self, obj):
+        request = self.context.get("request")
+
+        return ApplicantMiniSerlaizer(
+            obj.applicants.all(), many=True, context={"request": request}
+        ).data
 
     def get_requirements(self, obj):
         return [r.name for r in obj.requirements.all()]
@@ -62,12 +104,14 @@ class JobSerializer(serializers.ModelSerializer):
 
 
 class ApplicantSerializer(serializers.ModelSerializer):
-    job_id = serializers.IntegerField(required=True)
 
+    job_id = serializers.IntegerField(required=True, write_only=True)
     job = JobSerializer(read_only=True)
 
     created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
     updated_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
+    cv = serializers.SerializerMethodField(read_only=True)
+    cover_letter = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = ApplicantModel
@@ -87,6 +131,18 @@ class ApplicantSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+    def get_cv(self, obj):
+        request = self.context.get("request")
+        if obj.cv and request:
+            return request.build_absolute_uri(obj.cv.url)
+        return None
+
+    def get_cover_letter(self, obj):
+        request = self.context.get("request")
+        if obj.cover_letter and request:
+            return request.build_absolute_uri(obj.cover_letter.url)
+        return None
 
     def create(self, validated_data):
         job_id = validated_data.pop("job_id")

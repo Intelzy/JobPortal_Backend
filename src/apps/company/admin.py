@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from company.models import JobModel, ApplicantModel, Skill
+from .models import JobModel, ApplicantModel, Skill
 
 
 class JobAdmin(admin.ModelAdmin):

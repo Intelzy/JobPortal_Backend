@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from company.views import JobView, ApplicantView, ProfileView
+from .views import JobView, ApplicantView, ProfileView
 
 
 urlpatterns = [

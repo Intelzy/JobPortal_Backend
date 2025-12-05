@@ -7,10 +7,16 @@ from rest_framework.permissions import AllowAny
 from rest_framework import viewsets
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
-from company.models import JobModel, ApplicantModel
-from company.serializer import JobSerializer, ApplicantSerializer, ProfileSerializer
-from accounts.models import CustomUser
-from accounts.serializers import UserSerializer
+from src.apps.company.models import JobModel, ApplicantModel
+from src.apps.company.models import JobModel, ApplicantModel
+from src.apps.company.serializer import (
+    JobSerializer,
+    ApplicantSerializer,
+    ProfileSerializer,
+)
+
+from src.apps.accounts.models import CustomUser
+from src.apps.accounts.serializers import UserSerializer
 
 
 # Create your views here.
@@ -47,7 +53,7 @@ class ApplicantView(APIView):
         id = kwargs.get("id")
         if id:
             applicants = get_object_or_404(ApplicantModel, id=id)
-            serializer = ApplicantSerializer(applicants)
+            serializer = ApplicantSerializer(applicants, context={"request": request})
             return Response(
                 {"result": serializer.data},
                 status=status.HTTP_200_OK,
@@ -66,7 +72,9 @@ class ApplicantView(APIView):
         if company_id:
             applicants = applicants.filter(company_id=company_id)
 
-        serializer = ApplicantSerializer(applicants, many=True)
+        serializer = ApplicantSerializer(
+            applicants, many=True, context={"request": request}
+        )
         return Response(
             {"result": serializer.data, "count": applicants.count()},
             status=status.HTTP_200_OK,
@@ -157,21 +165,12 @@ class JobView(APIView):
     def get(self, request, *args, **kwargs):
 
         company_id = request.query_params.get("company_id")
-
         if company_id:
             company = get_object_or_404(CustomUser, id=company_id)
-
             jobs = company.jobs.all()
             serializer = JobSerializer(jobs, many=True)
-            applicants = jobs.applicants.all()
-
-            response_data = {
-                "applicants": ApplicantSerializer(applicants, many=True),
-                "applicants_count": applicants.count(),
-            }
-
             return Response(
-                {"result": response_data, "count": jobs.count()},
+                {"result": serializer.data, "count": jobs.count()},
                 status=status.HTTP_200_OK,
             )
 
@@ -179,20 +178,16 @@ class JobView(APIView):
         if id:
             jobs = get_object_or_404(JobModel, id=id)
             serializer = JobSerializer(jobs)
-            applicant_count = jobs.applicants.all().count()
 
             return Response(
-                {"result": serializer.data, "applicant_count": applicant_count},
+                {"result": serializer.data},
                 status.HTTP_200_OK,
             )
 
         jobs = JobModel.objects.all()
         serializer = JobSerializer(jobs, many=True)
         return Response(
-            {
-                "result": serializer.data,
-                "count": jobs.count(),
-            },
+            {"result": serializer.data, "count": jobs.count()},
             status=status.HTTP_200_OK,
         )
 

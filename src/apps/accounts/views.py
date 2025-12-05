@@ -10,15 +10,17 @@ from rest_framework.permissions import AllowAny
 from drf_spectacular.utils import extend_schema
 
 
-from accounts.models import CustomUser
-from accounts.serializers import UserSerializer, LoginSerializer
+from .models import CustomUser
+from .serializers import UserSerializer, LoginSerializer
 
 
-@extend_schema(tags=["Users"], request=UserSerializer, responses={200: UserSerializer})
 class UserView(APIView):
 
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        tags=["Users"], request=UserSerializer, responses={200: UserSerializer}
+    )
     def get(self, request, *args, **kwargs):
 
         if kwargs.get("id"):
@@ -29,7 +31,9 @@ class UserView(APIView):
             serializer = UserSerializer(user, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @extend_schema(tags=["Auth"])
+    @extend_schema(
+        tags=["Auth"], request=UserSerializer, responses={201: UserSerializer}
+    )
     def post(self, request, *args, **kwargs):
         data = request.data.copy()
 
@@ -55,7 +59,9 @@ class UserView(APIView):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    @extend_schema(tags=["Users"])
+    @extend_schema(
+        tags=["Users"], request=UserSerializer, responses={200: UserSerializer}
+    )
     def delete(self, request, *args, **kwargs):
         user = get_object_or_404(CustomUser, id=id)
         serializer = UserSerializer(user)
@@ -65,7 +71,9 @@ class UserView(APIView):
             status=status.HTTP_200_OK,
         )
 
-    @extend_schema(tags=["Users"])
+    @extend_schema(
+        tags=["Users"], request=UserSerializer, responses={200: UserSerializer}
+    )
     def put(self, request, *args, **kwargs):
         user_id = kwargs.get("id")
         if not user_id:
@@ -86,7 +94,9 @@ class UserView(APIView):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    @extend_schema(tags=["Users"])
+    @extend_schema(
+        tags=["Users"], request=UserSerializer, responses={200: UserSerializer}
+    )
     def patch(self, request, *args, **kwargs):
         user_id = kwargs.get("id")
         if not user_id:

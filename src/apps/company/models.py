@@ -1,6 +1,5 @@
 from django.db import models
-
-from accounts.models import CustomUser
+from src.apps.accounts.models import CustomUser
 
 
 class JobType(models.TextChoices):

@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from accounts.models import CustomUser
 from django.contrib.auth import authenticate, login
+
+from .models import CustomUser
 
 
 class UserSerializer(serializers.ModelSerializer):

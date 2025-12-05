@@ -44,9 +44,11 @@ class JobModel(models.Model):
         max_length=20, choices=JobType.choices, default=JobType.FULL_TIME
     )
     description = models.CharField(max_length=1000, blank=True, null=True)
-    skills = models.ManyToManyField(Skill)
+    # skills = models.ManyToManyField(Skill, related_name="skill")
 
-    requirements = models.ManyToManyField(JobRequirement, blank=True)
+    requirements = models.ManyToManyField(
+        JobRequirement, blank=True, related_name="requirements"
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

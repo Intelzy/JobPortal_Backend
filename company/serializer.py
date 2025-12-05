@@ -88,14 +88,8 @@ class ApplicantSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
-    # def validate(self, attrs):
-    #     if len(attrs["contact"]) != 10:
-    #         raise serializers.ValidationError("Contact must be 10 digits")
-    #     return attrs
-
     def create(self, validated_data):
         job_id = validated_data.pop("job_id")
-
         job = get_object_or_404(JobModel, id=job_id)
 
         validated_data["company"] = job.company

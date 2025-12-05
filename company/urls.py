@@ -6,7 +6,6 @@ from company.views import JobView, ApplicantView, ProfileView
 urlpatterns = [
     path("jobs/", JobView.as_view()),
     path("jobs/<int:id>/", JobView.as_view()),
-    path("jobs/<int:company_id>/all/", JobView.as_view()),
     #
     path("applicants/", ApplicantView.as_view()),
     path("applicants/<int:id>/", ApplicantView.as_view()),

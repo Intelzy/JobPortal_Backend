@@ -32,7 +32,6 @@ class JobRequirement(models.Model):
 
 # Create your models here.
 class JobModel(models.Model):
-
     company = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name="jobs"
     )
@@ -57,6 +56,7 @@ class JobModel(models.Model):
 
 
 class ApplicantModel(models.Model):
+    user_id = models.IntegerField(blank=True, null=True)
     company = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name="applicants"
     )
@@ -70,6 +70,7 @@ class ApplicantModel(models.Model):
     status = models.CharField(choices=JobStatus, default=JobStatus.PENDING)
     portfolio_url = models.URLField(blank=True, null=True)
     linkedin_url = models.URLField(blank=True, null=True)
+
     cv = models.FileField(upload_to="cv/", blank=True, null=True)
     cover_letter = models.FileField(upload_to="cover_letter/", blank=True, null=True)
 

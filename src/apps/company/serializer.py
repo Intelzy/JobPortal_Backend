@@ -115,16 +115,23 @@ class JobSerializer(serializers.ModelSerializer):
 class ApplicantSerializer(serializers.ModelSerializer):
 
     job_id = serializers.IntegerField(required=True, write_only=True)
-    job = JobSerializer(read_only=True)
+    job = JobMiniSerializer(read_only=True)
 
     created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
     updated_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
-    cv = serializers.SerializerMethodField(read_only=True)
-    cover_letter = serializers.SerializerMethodField(read_only=True)
+
+    cv_url = serializers.SerializerMethodField(read_only=True)
+    cover_letter_url = serializers.SerializerMethodField(read_only=True)
+
+    cv = serializers.FileField(required=False, allow_null=True, write_only=True)
+    cover_letter = serializers.FileField(
+        required=False, allow_null=True, write_only=True
+    )
 
     class Meta:
         model = ApplicantModel
         fields = [
+            "user_id",
             "id",
             "job_id",
             "job",
@@ -137,17 +144,19 @@ class ApplicantSerializer(serializers.ModelSerializer):
             "linkedin_url",
             "cv",
             "cover_letter",
+            "cv_url",
+            "cover_letter_url",
             "created_at",
             "updated_at",
         ]
 
-    def get_cv(self, obj):
+    def get_cv_url(self, obj):
         request = self.context.get("request")
         if obj.cv and request:
             return request.build_absolute_uri(obj.cv.url)
         return None
 
-    def get_cover_letter(self, obj):
+    def get_cover_letter_url(self, obj):
         request = self.context.get("request")
         if obj.cover_letter and request:
             return request.build_absolute_uri(obj.cover_letter.url)
@@ -160,14 +169,5 @@ class ApplicantSerializer(serializers.ModelSerializer):
         validated_data["company"] = job.company
         validated_data["job"] = job
 
-        appplicant = ApplicantModel.objects.create(**validated_data)
-        return appplicant
-
-
-class ProfileSerializer(serializers.Serializer):
-    company = UserSerializer()
-    jobs = JobSerializer()
-    applicants = ApplicantSerializer()
-
-    class Model:
-        fields = ["company", "jobs", "applicants"]
+        applicant = ApplicantModel.objects.create(**validated_data)
+        return applicant

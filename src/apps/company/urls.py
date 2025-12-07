@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import JobView, ApplicantView, ProfileView
+from .views import JobView, ApplicantView
 
 
 urlpatterns = [
@@ -9,6 +9,4 @@ urlpatterns = [
     #
     path("applicants/", ApplicantView.as_view()),
     path("applicants/<int:id>/", ApplicantView.as_view()),
-    #
-    path("profile/<int:company_id>/", ProfileView.as_view()),
 ]

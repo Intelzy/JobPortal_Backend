@@ -22,6 +22,7 @@ class JobAdmin(admin.ModelAdmin):
 
 class ApplicantAdmin(admin.ModelAdmin):
     list_display = [
+        "user_id",
         "id",
         "company",
         "job",
@@ -30,10 +31,10 @@ class ApplicantAdmin(admin.ModelAdmin):
         "contact",
         "experience",
         "status",
-        "portfolio_url",
-        "linkedin_url",
         "cv",
         "cover_letter",
+        "portfolio_url",
+        "linkedin_url",
         "created_at",
         "updated_at",
     ]

@@ -9,11 +9,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 from src.apps.company.models import JobModel, ApplicantModel
 from src.apps.company.models import JobModel, ApplicantModel
-from src.apps.company.serializer import (
-    JobSerializer,
-    ApplicantSerializer,
-    ProfileSerializer,
-)
+from src.apps.company.serializer import JobSerializer, ApplicantSerializer
 
 from src.apps.accounts.models import CustomUser
 from src.apps.accounts.serializers import UserSerializer
@@ -46,6 +42,12 @@ class ApplicantView(APIView):
                 location=OpenApiParameter.QUERY,
                 description="Filter by company_id",
             ),
+            OpenApiParameter(
+                name="user_id",
+                type=int,
+                location=OpenApiParameter.QUERY,
+                description="Filter by user id",
+            ),
         ],
     )
     def get(self, request, *args, **kwargs):
@@ -59,12 +61,15 @@ class ApplicantView(APIView):
                 status=status.HTTP_200_OK,
             )
 
+        user_id = request.query_params.get("user_id")
         job_id = request.query_params.get("job_id")
         company_id = request.query_params.get("company_id")
         applicant_status = request.query_params.get("status")
 
         applicants = ApplicantModel.objects.all()
 
+        if user_id:
+            applicants = applicants.filter(user_id=user_id)
         if applicant_status:
             applicants = applicants.filter(status=applicant_status)
         if job_id:
@@ -86,7 +91,9 @@ class ApplicantView(APIView):
         responses={201: ApplicantSerializer},
     )
     def post(self, request, *args, **kwargs):
-        serializer = ApplicantSerializer(data=request.data)
+        serializer = ApplicantSerializer(
+            data=request.data, context={"request": request}
+        )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -241,31 +248,31 @@ class JobView(APIView):
         return Response({"message": "applicant deleted"}, status=status.HTTP_200_OK)
 
 
-class ProfileView(APIView):
-    permission_classes = [AllowAny]
+# class ProfileView(APIView):
+#     permission_classes = [AllowAny]
 
-    @extend_schema(
-        tags=["Profile"], request=ProfileSerializer, responses={200: ProfileSerializer}
-    )
-    def get(self, request, *args, **kwargs):
-        id = kwargs.get("company_id")
-        if not id:
-            return Response(
-                {"message": "Id not found"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        company = get_object_or_404(CustomUser, id=id)
-        comany_data = UserSerializer(company)
-        job = company.jobs.all()
-        job_data = JobSerializer(job, many=True)
-        applicant = company.applicants.all()
-        applicant_data = ApplicantSerializer(applicant, many=True)
-        return Response(
-            {
-                "comany_data": comany_data.data,
-                "job_data": job_data.data,
-                "job_count": job.count(),
-                "applicant_data": applicant_data.data,
-                "applicant_count": applicant.count(),
-            },
-            status=status.HTTP_200_OK,
-        )
+#     @extend_schema(
+#         tags=["Profile"], request=ProfileSerializer, responses={200: ProfileSerializer}
+#     )
+#     def get(self, request, *args, **kwargs):
+#         id = kwargs.get("company_id")
+#         if not id:
+#             return Response(
+#                 {"message": "Id not found"}, status=status.HTTP_400_BAD_REQUEST
+#             )
+#         company = get_object_or_404(CustomUser, id=id)
+#         comany_data = UserSerializer(company)
+#         job = company.jobs.all()
+#         job_data = JobSerializer(job, many=True)
+#         applicant = company.applicants.all()
+#         applicant_data = ApplicantSerializer(applicant, many=True)
+#         return Response(
+#             {
+#                 "comany_data": comany_data.data,
+#                 "job_data": job_data.data,
+#                 "job_count": job.count(),
+#                 "applicant_data": applicant_data.data,
+#                 "applicant_count": applicant.count(),
+#             },
+#             status=status.HTTP_200_OK,
+#         )
